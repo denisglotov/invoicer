@@ -1,0 +1,32 @@
+{
+  "name": "Invoicer - SEPA EPC QR Pay",
+  "short_name": "Invoicer",
+  "description": "Parse PDF utility invoices and generate instant SEPA EPC QR codes for banking apps",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#090d16",
+  "theme_color": "#0075eb",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "share_target": {
+    "action": "./share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "invoice",
+          "accept": ["application/pdf", ".pdf"]
+        }
+      ]
+    }
+  }
+}

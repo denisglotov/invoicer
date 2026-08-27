@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0075eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00c853;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="qrgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f1f5f9;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#grad1)"/>
+  <g filter="url(#shadow)">
+    <!-- Invoice Card -->
+    <rect x="96" y="96" width="320" height="320" rx="32" fill="url(#qrgrad)"/>
+    <!-- Document lines -->
+    <rect x="136" y="140" width="140" height="18" rx="9" fill="#0075eb"/>
+    <rect x="136" y="174" width="80" height="12" rx="6" fill="#94a3b8"/>
+    <!-- Mini QR representation -->
+    <rect x="136" y="216" width="100" height="100" rx="12" fill="#0f172a"/>
+    <rect x="148" y="228" width="32" height="32" rx="6" fill="#ffffff"/>
+    <rect x="156" y="236" width="16" height="16" rx="3" fill="#0f172a"/>
+    <rect x="192" y="228" width="32" height="32" rx="6" fill="#ffffff"/>
+    <rect x="200" y="236" width="16" height="16" rx="3" fill="#0f172a"/>
+    <rect x="148" y="272" width="32" height="32" rx="6" fill="#ffffff"/>
+    <rect x="156" y="280" width="16" height="16" rx="3" fill="#0f172a"/>
+    <!-- Payment / Check badge -->
+    <circle cx="316" cy="266" r="44" fill="#00c853"/>
+    <path d="M302 266 L312 276 L332 254" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Total amount bar -->
+    <rect x="136" y="348" width="240" height="36" rx="12" fill="#e2e8f0"/>
+    <rect x="148" y="358" width="100" height="16" rx="8" fill="#0075eb"/>
+    <rect x="296" y="358" width="68" height="16" rx="8" fill="#00c853"/>
+  </g>
+</svg>

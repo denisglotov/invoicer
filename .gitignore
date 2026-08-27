@@ -1,0 +1,19 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# WebAssembly & Build artifacts
+/pkg/
+/www/pkg/
+/dist/
+/node_modules/
+.DS_Store
+
+# Local Invoice Examples (Private)
+/examples/
+/www/examples/
+*.pdf
+
+# Logs
+*.log

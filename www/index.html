@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0075eb">
+  <meta name="description" content="Parse PDF utility invoices and generate instant SEPA EPC QR codes offline">
+  <title>Invoicer - SEPA EPC QR Pay</title>
+  
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="apple-touch-icon" href="./icons/icon.svg">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <img src="./icons/icon.svg" alt="Invoicer Logo" class="app-icon">
+        <div>
+          <h1 class="brand-title">Invoicer</h1>
+          <span class="badge">SEPA EPC QR Pay</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-install" class="btn-install hidden" title="Install App">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Install</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Upload View -->
+      <section id="upload-view" class="view active">
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="file-input" accept="application/pdf,.pdf" class="file-input">
+          <div class="dropzone-inner">
+            <div class="icon-circle">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            </div>
+            <h2>Drop invoice PDF here</h2>
+            <p class="subtitle">or tap to browse from your device</p>
+            <button class="btn-primary" type="button" onclick="document.getElementById('file-input').click()">
+              Choose Invoice PDF
+            </button>
+            <p class="privacy-note">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              100% Client-Side Rust WebAssembly. Your data never leaves your device.
+            </p>
+          </div>
+        </div>
+
+        <!-- Text Paste Fallback Drawer -->
+        <details class="text-paste-details">
+          <summary>Or paste invoice text directly</summary>
+          <div class="paste-box">
+            <textarea id="paste-text" placeholder="Paste invoice content here (IBAN, amount, reference)..." rows="4"></textarea>
+            <button id="btn-parse-text" class="btn-secondary" type="button">Parse Text</button>
+          </div>
+        </details>
+      </section>
+
+      <!-- Loading View -->
+      <section id="loading-view" class="view">
+        <div class="spinner-container">
+          <div class="spinner"></div>
+          <p class="loading-text">Parsing PDF with WebAssembly...</p>
+        </div>
+      </section>
+
+      <!-- Result View -->
+      <section id="result-view" class="view">
+        <div class="result-card">
+          <!-- Supplier & Amount Header -->
+          <div class="card-header">
+            <div class="payee-info">
+              <span class="payee-label">Payee</span>
+              <h2 id="res-supplier" class="payee-name">-</h2>
+              <span id="res-recipient" class="recipient-name"></span>
+            </div>
+            <div class="amount-badge">
+              <span class="amount-label">Total to Pay</span>
+              <span id="res-amount" class="amount-value">€0.00</span>
+              <span id="res-due-date" class="due-badge">Due: -</span>
+            </div>
+          </div>
+
+          <!-- EPC QR Code Section -->
+          <div class="qr-container">
+            <div id="res-qr-svg" class="qr-svg-wrapper"></div>
+            <p class="qr-caption">Scan with your banking app to auto-fill payment</p>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="action-buttons">
+            <button id="btn-download-qr" class="btn-primary-action" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Save QR Code Image</span>
+            </button>
+            <button id="btn-copy-all" class="btn-sub-action" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy All Transfer Details</span>
+            </button>
+          </div>
+
+          <!-- Copyable Transfer Details -->
+          <div class="details-section">
+            <h3 class="section-title">Transfer Details</h3>
+
+            <div class="detail-item">
+              <div class="detail-info">
+                <span class="detail-label">IBAN</span>
+                <span id="res-iban" class="detail-val monospace">-</span>
+              </div>
+              <button class="btn-copy" data-target="res-iban" title="Copy IBAN">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-info">
+                <span class="detail-label">Payment Reference / Purpose</span>
+                <span id="res-reference" class="detail-val monospace">-</span>
+              </div>
+              <button class="btn-copy" data-target="res-reference" title="Copy Reference">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-info">
+                <span class="detail-label">Amount</span>
+                <span id="res-amount-formatted" class="detail-val monospace">-</span>
+              </div>
+              <button class="btn-copy" data-target="res-amount-raw" title="Copy Amount">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+              <input type="hidden" id="res-amount-raw">
+            </div>
+
+            <div class="detail-row-2col">
+              <div class="detail-item">
+                <div class="detail-info">
+                  <span class="detail-label">BIC / SWIFT</span>
+                  <span id="res-bic" class="detail-val monospace">-</span>
+                </div>
+                <button class="btn-copy" data-target="res-bic" title="Copy BIC">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+
+              <div class="detail-item">
+                <div class="detail-info">
+                  <span class="detail-label">Invoice #</span>
+                  <span id="res-invoice-num" class="detail-val monospace">-</span>
+                </div>
+                <button class="btn-copy" data-target="res-invoice-num" title="Copy Invoice #">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reset Button -->
+          <div class="card-footer">
+            <button id="btn-reset" class="btn-secondary" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              <span>Upload Another Invoice</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div id="toast" class="toast">Copied to clipboard!</div>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
