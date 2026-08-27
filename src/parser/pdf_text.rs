@@ -124,9 +124,10 @@ fn object_to_string(obj: &Object) -> Option<String> {
                 Some(s)
             } else if bytes.starts_with(&[0xFE, 0xFF]) {
                 // UTF-16BE
-                let u16_chars: Vec<u16> = bytes[2..]
-                    .chunks_exact(2)
-                    .map(|chunk| u16::from_be_bytes([chunk[0], chunk[1]]))
+                let (chunks, _) = bytes[2..].as_chunks::<2>();
+                let u16_chars: Vec<u16> = chunks
+                    .iter()
+                    .map(|&chunk| u16::from_be_bytes(chunk))
                     .collect();
                 String::from_utf16(&u16_chars).ok()
             } else {
