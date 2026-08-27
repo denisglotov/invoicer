@@ -1,7 +1,7 @@
 import init, {
   init_panic_hook,
   parse_pdf_and_create_payment,
-  parse_text_and_create_payment
+  parse_text_and_create_payment,
 } from './pkg/invoicer.js';
 
 // DOM elements
@@ -216,7 +216,9 @@ if (btnDownloadQr) {
       showToast('No QR code available');
       return;
     }
-    const svgBlob = new Blob([currentPaymentResult.qr_svg], { type: 'image/svg+xml;charset=utf-8' });
+    const svgBlob = new Blob([currentPaymentResult.qr_svg], {
+      type: 'image/svg+xml;charset=utf-8',
+    });
     const url = URL.createObjectURL(svgBlob);
     const downloadLink = document.createElement('a');
     const invNr = currentPaymentResult.invoice.invoice_num || 'invoice';
@@ -240,8 +242,10 @@ if (btnCopyAll) {
       `IBAN: ${inv.iban}`,
       inv.bic ? `BIC: ${inv.bic}` : null,
       `Amount: ${inv.formatted_amount} EUR`,
-      `Reference: ${inv.reference}`
-    ].filter(Boolean).join('\n');
+      `Reference: ${inv.reference}`,
+    ]
+      .filter(Boolean)
+      .join('\n');
 
     try {
       await navigator.clipboard.writeText(fullDetails);
